@@ -1,5 +1,6 @@
 use assert_eq_float::assert_eq_float;
 
+use super::ops::*;
 use super::*;
 
 const EPSILON: f32 = 0.001;
