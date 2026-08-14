@@ -88,3 +88,17 @@ where
         )
     }
 }
+
+impl<'a, VALUE> Sum<&'a Scalar<VALUE>> for Scalar<VALUE>
+where
+    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity,
+{
+    fn sum<I: Iterator<Item = &'a Scalar<VALUE>>>(iter: I) -> Self {
+        iter.fold(
+            Scalar {
+                value: VALUE::identity(),
+            },
+            |acc, value| Scalar::add(&acc, value),
+        )
+    }
+}
