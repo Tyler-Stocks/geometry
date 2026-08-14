@@ -1,7 +1,6 @@
-mod ops;
-mod scalar;
+pub mod ops;
 
-pub use ops::*;
+mod scalar;
 pub use scalar::*;
 
 #[cfg(test)]
