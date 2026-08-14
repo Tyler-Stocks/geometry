@@ -97,3 +97,28 @@ where
         )
     }
 }
+
+impl<VALUE> Identity for Scalar<VALUE>
+where
+    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity + PartialEq,
+{
+    fn additive_identity() -> Self {
+        Scalar {
+            value: VALUE::additive_identity(),
+        }
+    }
+
+    fn is_additive_identity(&self) -> bool {
+        self.value == VALUE::additive_identity()
+    }
+
+    fn multiplicative_identity() -> Self {
+        Scalar {
+            value: VALUE::multiplicative_identity(),
+        }
+    }
+
+    fn is_multiplicative_identity(&self) -> bool {
+        self.value == VALUE::multiplicative_identity()
+    }
+}
