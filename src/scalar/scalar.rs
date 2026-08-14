@@ -2,7 +2,7 @@ use std::iter::Sum;
 
 use super::ops::*;
 
-use crate::core::Identity;
+use crate::core::identity::Identity;
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Scalar<T>

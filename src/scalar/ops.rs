@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use crate::core::Identity;
+use crate::core::identity::Identity;
 use crate::scalar::Scalar;
 
 pub trait ScalarAdd: Sized {
