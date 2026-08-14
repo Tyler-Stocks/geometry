@@ -1,18 +1,38 @@
+use std::ops::Div;
+
 pub trait Identity: Sized + Copy {
-    fn identity() -> Self;
-    fn is_identity(&self) -> bool;
+    #[must_use]
+    fn additive_identity() -> Self;
+
+    #[must_use]
+    fn is_additive_identity(&self) -> bool;
+
+    #[must_use]
+    fn multiplicative_identity() -> Self;
+
+    #[must_use]
+    fn is_multiplicative_identity(&self) -> bool;
 }
 
 macro_rules! impl_identity_int {
     ($($name:ty),*) => {
         $(impl Identity for $name {
-            fn identity() -> Self {
+            fn additive_identity() -> Self {
                 0
             }
 
-            fn is_identity(&self) -> bool {
-                *self == Self::identity()
+            fn is_additive_identity(&self) -> bool {
+                *self == <$name>::additive_identity()
             }
+
+            fn multiplicative_identity() -> Self {
+                1
+            }
+
+            fn is_multiplicative_identity(&self) -> bool {
+                *self == <$name>::multiplicative_identity()
+            }
+
         })*
     };
 }
@@ -24,12 +44,20 @@ impl_identity_int!(
 macro_rules! impl_identity_float {
     ($($name:ty),*) => {
         $(impl Identity for $name {
-            fn identity() -> Self {
+            fn additive_identity() -> Self {
                 0.0
             }
 
-            fn is_identity(&self) -> bool {
-                *self == Self::identity()
+            fn is_additive_identity(&self) -> bool {
+                *self == <$name>::additive_identity()
+            }
+
+            fn multiplicative_identity() -> Self {
+                1.0
+            }
+
+            fn is_multiplicative_identity(&self) -> bool {
+                *self == <$name>::multiplicative_identity()
             }
         })*
     };

@@ -43,11 +43,6 @@ where
             value: VALUE::div(&lhs.value, &rhs.value)?,
         })
     }
-
-    #[must_use]
-    pub fn is_identity(&self) -> bool {
-        self.value.is_identity()
-    }
 }
 
 impl<VALUE> From<VALUE> for Scalar<VALUE>
@@ -82,7 +77,7 @@ where
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(
             Scalar {
-                value: VALUE::identity(),
+                value: VALUE::additive_identity(),
             },
             |acc, value| Scalar::add(&acc, &value),
         )
@@ -96,7 +91,7 @@ where
     fn sum<I: Iterator<Item = &'a Scalar<VALUE>>>(iter: I) -> Self {
         iter.fold(
             Scalar {
-                value: VALUE::identity(),
+                value: VALUE::additive_identity(),
             },
             |acc, value| Scalar::add(&acc, value),
         )

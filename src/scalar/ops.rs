@@ -75,7 +75,7 @@ macro_rules! impl_scalar_operation {
     (div, $($implementor:ty),+) => {
         $(impl ScalarDiv for $implementor {
             fn div(lhs: &Self, rhs: &Self) -> Result<Self, ZeroDivisorError> {
-                if rhs.is_identity() {
+                if rhs.is_multiplicative_identity() {
                     return Err(ZeroDivisorError);
                 } else {
                     return Ok(lhs / rhs);
@@ -83,7 +83,7 @@ macro_rules! impl_scalar_operation {
             }
 
             fn div_consuming(lhs: Self, rhs: Self) -> Result<Self, ZeroDivisorError> {
-                if rhs.is_identity() {
+                if rhs.is_multiplicative_identity() {
                     return Err(ZeroDivisorError);
                 } else {
                     return Ok(lhs / rhs);
