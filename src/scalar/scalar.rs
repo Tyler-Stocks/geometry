@@ -1,3 +1,5 @@
+use std::iter::Sum;
+
 use super::ops::*;
 
 use crate::core::Identity;
@@ -72,3 +74,17 @@ macro_rules! impl_from_scalar {
 impl_from_scalar!(
     u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, f32, f64
 );
+
+impl<VALUE> Sum for Scalar<VALUE>
+where
+    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity,
+{
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(
+            Scalar {
+                value: VALUE::identity(),
+            },
+            |acc, value| Scalar::add(&acc, &value),
+        )
+    }
+}
