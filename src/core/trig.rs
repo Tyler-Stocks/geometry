@@ -3,7 +3,7 @@ use std::{error::Error, fmt::Display};
 use super::identity::Identity;
 use crate::scalar::ops::*;
 
-pub trait Sin: Into<f64> {
+pub trait Sin {
     type Output: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity;
 
     #[must_use]
