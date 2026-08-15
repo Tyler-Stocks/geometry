@@ -1,44 +1,41 @@
 use std::{error::Error, fmt::Display};
 
 use super::identity::Identity;
-use crate::scalar::ops::*;
+use crate::{core::inverse::Inverse, scalar::ops::*};
 
 pub trait Sin {
-    type Output: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity;
+    #[must_use]
+    fn sin(&self) -> f64;
 
     #[must_use]
-    fn sin(&self) -> Self::Output;
+    fn asin(&self) -> Result<f64, OutOfBounds>;
 
     #[must_use]
-    fn asin(&self) -> Result<Self::Output, OutOfBounds>;
+    fn sinh(&self) -> f64;
 
     #[must_use]
-    fn sinh(&self) -> Self::Output;
-
-    #[must_use]
-    fn asinh(&self) -> Result<Self::Output, OutOfBounds>;
+    fn asinh(&self) -> Result<f64, OutOfBounds>;
 }
 
 macro_rules! impl_sin {
     ($($name:ty),+) => {
         $(
             impl Sin for $name {
-                type Output = f64;
 
-                fn sin(&self) -> Self::Output {
+                fn sin(&self) -> f64 {
                     f64::sin((*self).into())
                 }
 
-                fn asin(&self) -> Result<Self::Output, OutOfBounds> {
+                fn asin(&self) -> Result<f64, OutOfBounds> {
                     let result = f64::asin((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
 
-                fn sinh(&self) -> Self::Output {
+                fn sinh(&self) -> f64 {
                     f64::sinh((*self).into())
                 }
 
-                fn asinh(&self) -> Result<Self::Output, OutOfBounds> {
+                fn asinh(&self) -> Result<f64, OutOfBounds> {
                     let result = f64::asinh((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
@@ -50,41 +47,37 @@ macro_rules! impl_sin {
 impl_sin!(f32, f64, u8, u16, u32, i8, i16, i32);
 
 pub trait Cos {
-    type Output: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity;
+    #[must_use]
+    fn cos(&self) -> f64;
 
     #[must_use]
-    fn cos(&self) -> Self::Output;
+    fn acos(&self) -> Result<f64, OutOfBounds>;
 
     #[must_use]
-    fn acos(&self) -> Result<Self::Output, OutOfBounds>;
+    fn cosh(&self) -> f64;
 
     #[must_use]
-    fn cosh(&self) -> Self::Output;
-
-    #[must_use]
-    fn acosh(&self) -> Result<Self::Output, OutOfBounds>;
+    fn acosh(&self) -> Result<f64, OutOfBounds>;
 }
 
 macro_rules! impl_cos {
     ($($name:ty),+) => {
         $(
             impl Cos for $name {
-                type Output = f64;
-
-                fn cos(&self) -> Self::Output {
+                fn cos(&self) -> f64 {
                     f64::cos((*self).into())
                 }
 
-                fn acos(&self) -> Result<Self::Output, OutOfBounds> {
+                fn acos(&self) -> Result<f64, OutOfBounds> {
                     let result = f64::acos((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
 
-                fn cosh(&self) -> Self::Output {
+                fn cosh(&self) -> f64 {
                     f64::cosh((*self).into())
                 }
 
-                fn acosh(&self) -> Result<Self::Output, OutOfBounds> {
+                fn acosh(&self) -> Result<f64, OutOfBounds> {
                     let result = f64::acosh((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
