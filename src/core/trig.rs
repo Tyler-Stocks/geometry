@@ -134,6 +134,120 @@ macro_rules! impl_tan {
 
 impl_tan!(f32, f64, u8, u16, u32, i8, i16, i32);
 
+pub trait Csc: Sin + Inverse {
+    #[must_use]
+    fn csc(&self) -> f64;
+
+    #[must_use]
+    fn acsc(&self) -> Result<f64, OutOfBounds>;
+
+    #[must_use]
+    fn csch(&self) -> f64;
+
+    #[must_use]
+    fn acsch(&self) -> Result<f64, OutOfBounds>;
+}
+
+macro_rules! impl_csc {
+    ($($name:ty),+) => {
+        $(impl Csc for $name {
+            fn csc(&self) -> f64 {
+                self.sin().inverse()
+            }
+
+            fn acsc(&self) -> Result<f64, OutOfBounds> {
+                Ok(self.asin()?.inverse())
+            }
+
+            fn csch(&self) -> f64 {
+                self.sinh().inverse()
+            }
+
+            fn acsch(&self) -> Result<f64, OutOfBounds> {
+                Ok(self.asinh()?.inverse())
+            }
+        })+
+    };
+}
+
+impl_csc!(f32, f64, u8, u16, u32, i8, i16, i32);
+
+pub trait Sec: Cos + Inverse {
+    #[must_use]
+    fn sec(&self) -> f64;
+
+    #[must_use]
+    fn asec(&self) -> Result<f64, OutOfBounds>;
+
+    #[must_use]
+    fn sech(&self) -> f64;
+
+    #[must_use]
+    fn asech(&self) -> Result<f64, OutOfBounds>;
+}
+
+macro_rules! impl_sec {
+    ($($name:ty),+) => {
+        $(impl Sec for $name {
+            fn sec(&self) -> f64 {
+                self.cos().inverse()
+            }
+
+            fn asec(&self) -> Result<f64, OutOfBounds> {
+                Ok(self.acos()?.inverse())
+            }
+
+            fn sech(&self) -> f64 {
+                self.cosh().inverse()
+            }
+
+            fn asech(&self) -> Result<f64, OutOfBounds> {
+                Ok(self.acosh()?.inverse())
+            }
+        })+
+    };
+}
+
+impl_sec!(f32, f64, u8, u16, u32, i8, i16, i32);
+
+pub trait Cot: Tan + Inverse {
+    #[must_use]
+    fn cot(&self) -> f64;
+
+    #[must_use]
+    fn acot(&self) -> Result<f64, OutOfBounds>;
+
+    #[must_use]
+    fn coth(&self) -> f64;
+
+    #[must_use]
+    fn acoth(&self) -> Result<f64, OutOfBounds>;
+}
+
+macro_rules! impl_cot {
+    ($($name:ty),+) => {
+        $(impl Cot for $name {
+            fn cot(&self) -> f64 {
+                self.tan().inverse()
+            }
+
+            fn acot(&self) -> Result<f64, OutOfBounds> {
+                Ok(self.atan()?.inverse())
+            }
+
+            fn coth(&self) -> f64 {
+                self.tanh().inverse()
+            }
+
+            fn acoth(&self) -> Result<f64, OutOfBounds> {
+                Ok(self.atanh()?.inverse())
+            }
+        })+
+    };
+}
+
+impl_cot!(f32, f64, u8, u16, u32, i8, i16, i32);
+
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct OutOfBounds;
 
