@@ -1,12 +1,16 @@
 pub trait Sqrt {
+    type Output;
+
     #[must_use]
-    fn sqrt(&self) -> f64;
+    fn sqrt(&self) -> Self::Output;
 }
 
 macro_rules! impl_sqrt {
     ($($name:ty),+) => {
         $(impl Sqrt for $name {
-            fn sqrt(&self) -> f64 {
+            type Output = f64;
+
+            fn sqrt(&self) -> Self::Output {
                 f64::sqrt((*self).into())
             }
         })+
