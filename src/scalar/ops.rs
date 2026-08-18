@@ -1,30 +1,41 @@
 use std::{error::Error, fmt::Display};
 
 use crate::core::identity::Identity;
-use crate::scalar::Scalar;
 
-pub trait ScalarAdd: Sized {
-    fn add(lhs: &Self, rhs: &Self) -> Self;
+pub trait ScalarAdd<'a, 'b>: Sized
+where
+    Self: 'a + 'b,
+{
+    fn add(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Self;
 
-    fn add_consuming(lhs: Self, rhs: Self) -> Self;
+    fn add_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Self;
 }
 
-pub trait ScalarMul: Sized {
-    fn mul(lhs: &Self, rhs: &Self) -> Self;
+pub trait ScalarMul<'a, 'b>: Sized
+where
+    Self: 'a + 'b,
+{
+    fn mul(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Self;
 
-    fn mul_consuming(lhs: Self, rhs: Self) -> Self;
+    fn mul_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Self;
 }
 
-pub trait ScalarSub: Sized {
-    fn sub(lhs: &Self, rhs: &Self) -> Self;
+pub trait ScalarSub<'a, 'b>: Sized
+where
+    Self: 'a + 'b,
+{
+    fn sub(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Self;
 
-    fn sub_consuming(lhs: Self, rhs: Self) -> Self;
+    fn sub_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Self;
 }
 
-pub trait ScalarDiv: Sized {
-    fn div(lhs: &Self, rhs: &Self) -> Result<Self, ZeroDivisorError>;
+pub trait ScalarDiv<'a, 'b>: Sized
+where
+    Self: 'a + 'b,
+{
+    fn div(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Result<Self, ZeroDivisorError>;
 
-    fn div_consuming(lhs: Self, rhs: Self) -> Result<Self, ZeroDivisorError>;
+    fn div_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Result<Self, ZeroDivisorError>;
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -40,41 +51,44 @@ impl Error for ZeroDivisorError {}
 
 macro_rules! impl_scalar_operation {
     (add, $($implementor:ty),+) => {
-        $(impl ScalarAdd for $implementor {
-            fn add(lhs: &Self, rhs: &Self) -> Self {
-                lhs + rhs
+        $(impl<'a, 'b> ScalarAdd<'a, 'b> for $implementor {
+            fn add(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Self {
+                lhs.into() + rhs.into()
             }
 
-            fn add_consuming(lhs: Self, rhs: Self) -> Self {
-                lhs + rhs
+            fn add_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Self {
+                lhs.into() + rhs.into()
             }
         })+
     };
     (sub, $($implementor:ty),+) => {
-        $(impl ScalarSub for $implementor {
-            fn sub(lhs: &Self, rhs: &Self) -> Self {
-                lhs - rhs
+        $(impl<'a, 'b> ScalarSub<'a, 'b> for $implementor {
+            fn sub(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Self {
+                lhs.into() - rhs.into()
             }
 
-            fn sub_consuming(lhs: Self, rhs: Self) -> Self {
-                lhs - rhs
+            fn sub_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Self {
+                lhs.into() - rhs.into()
             }
         })+
     };
     (mul, $($implementor:ty),+) => {
-        $(impl ScalarMul for $implementor {
-            fn mul(lhs: &Self, rhs: &Self) -> Self {
-                lhs * rhs
+        $(impl<'a, 'b> ScalarMul<'a, 'b> for $implementor {
+            fn mul(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Self {
+                lhs.into() * rhs.into()
             }
 
-            fn mul_consuming(lhs: Self, rhs: Self) -> Self {
-                lhs * rhs
+            fn mul_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Self {
+                lhs.into() * rhs.into()
             }
         })+
     };
     (div, $($implementor:ty),+) => {
-        $(impl ScalarDiv for $implementor {
-            fn div(lhs: &Self, rhs: &Self) -> Result<Self, ZeroDivisorError> {
+        $(impl<'a, 'b> ScalarDiv<'a, 'b> for $implementor {
+            fn div(lhs: impl Into<&'a Self>, rhs: impl Into<&'b Self>) -> Result<Self, ZeroDivisorError> {
+                let lhs = lhs.into();
+                let rhs = rhs.into();
+
                 if rhs.is_multiplicative_identity() {
                     return Err(ZeroDivisorError);
                 } else {
@@ -82,7 +96,10 @@ macro_rules! impl_scalar_operation {
                 }
             }
 
-            fn div_consuming(lhs: Self, rhs: Self) -> Result<Self, ZeroDivisorError> {
+            fn div_consuming(lhs: impl Into<Self>, rhs: impl Into<Self>) -> Result<Self, ZeroDivisorError> {
+                let lhs = lhs.into();
+                let rhs = rhs.into();
+
                 if rhs.is_multiplicative_identity() {
                     return Err(ZeroDivisorError);
                 } else {
@@ -108,71 +125,3 @@ impl_scalar_operation!(
 impl_scalar_operation!(
     div, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64
 );
-
-impl<VALUE> ScalarAdd for Scalar<VALUE>
-where
-    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity,
-{
-    fn add(lhs: &Self, rhs: &Self) -> Self {
-        Scalar {
-            value: VALUE::add(&lhs.value, &rhs.value),
-        }
-    }
-
-    fn add_consuming(lhs: Self, rhs: Self) -> Self {
-        Scalar {
-            value: VALUE::add_consuming(lhs.value, rhs.value),
-        }
-    }
-}
-
-impl<VALUE> ScalarSub for Scalar<VALUE>
-where
-    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity,
-{
-    fn sub(lhs: &Self, rhs: &Self) -> Self {
-        Scalar {
-            value: VALUE::sub(&lhs.value, &rhs.value),
-        }
-    }
-
-    fn sub_consuming(lhs: Self, rhs: Self) -> Self {
-        Scalar {
-            value: VALUE::sub_consuming(lhs.value, rhs.value),
-        }
-    }
-}
-
-impl<VALUE> ScalarMul for Scalar<VALUE>
-where
-    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity,
-{
-    fn mul(lhs: &Self, rhs: &Self) -> Self {
-        Scalar {
-            value: VALUE::mul(&lhs.value, &rhs.value),
-        }
-    }
-
-    fn mul_consuming(lhs: Self, rhs: Self) -> Self {
-        Scalar {
-            value: VALUE::mul_consuming(lhs.value, rhs.value),
-        }
-    }
-}
-
-impl<VALUE> ScalarDiv for Scalar<VALUE>
-where
-    VALUE: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity,
-{
-    fn div(lhs: &Self, rhs: &Self) -> Result<Self, ZeroDivisorError> {
-        Ok(Scalar {
-            value: VALUE::div(&lhs.value, &rhs.value)?,
-        })
-    }
-
-    fn div_consuming(lhs: Self, rhs: Self) -> Result<Self, ZeroDivisorError> {
-        Ok(Scalar {
-            value: VALUE::div_consuming(lhs.value, rhs.value)?,
-        })
-    }
-}

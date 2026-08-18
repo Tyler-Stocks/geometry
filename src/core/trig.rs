@@ -3,40 +3,49 @@ use std::{error::Error, fmt::Display};
 use super::identity::Identity;
 use crate::{core::inverse::Inverse, scalar::ops::*};
 
-pub trait Sin {
-    #[must_use]
-    fn sin(&self) -> f64;
+pub trait Sin<'a, 'b> {
+    type Output: Copy
+        + Sized
+        + ScalarAdd<'a, 'b>
+        + ScalarSub<'a, 'b>
+        + ScalarMul<'a, 'b>
+        + ScalarDiv<'a, 'b>
+        + Identity;
 
     #[must_use]
-    fn asin(&self) -> Result<f64, OutOfBounds>;
+    fn sin(&self) -> Self::Output;
 
     #[must_use]
-    fn sinh(&self) -> f64;
+    fn asin(&self) -> Result<Self::Output, OutOfBounds>;
 
     #[must_use]
-    fn asinh(&self) -> Result<f64, OutOfBounds>;
+    fn sinh(&self) -> Self::Output;
+
+    #[must_use]
+    fn asinh(&self) -> Result<Self::Output, OutOfBounds>;
 }
 
 macro_rules! impl_sin {
     ($($name:ty),+) => {
         $(
-            impl Sin for $name {
+            impl Sin<'_, '_> for $name {
+                type Output = f64;
 
-                fn sin(&self) -> f64 {
+                fn sin(&self) -> Self::Output {
                     f64::sin((*self).into())
                 }
 
-                fn asin(&self) -> Result<f64, OutOfBounds> {
-                    let result = f64::asin((*self).into());
+                fn asin(&self) -> Result<Self::Output, OutOfBounds> {
+                    let result = Self::Output::asin((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
 
-                fn sinh(&self) -> f64 {
+                fn sinh(&self) -> Self::Output {
                     f64::sinh((*self).into())
                 }
 
-                fn asinh(&self) -> Result<f64, OutOfBounds> {
-                    let result = f64::asinh((*self).into());
+                fn asinh(&self) -> Result<Self::Output, OutOfBounds> {
+                    let result = Self::Output::asinh((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
             }
@@ -46,39 +55,49 @@ macro_rules! impl_sin {
 
 impl_sin!(f32, f64, u8, u16, u32, i8, i16, i32);
 
-pub trait Cos {
-    #[must_use]
-    fn cos(&self) -> f64;
+pub trait Cos<'a, 'b> {
+    type Output: Copy
+        + Sized
+        + ScalarAdd<'a, 'b>
+        + ScalarSub<'a, 'b>
+        + ScalarMul<'a, 'b>
+        + ScalarDiv<'a, 'b>
+        + Identity;
 
     #[must_use]
-    fn acos(&self) -> Result<f64, OutOfBounds>;
+    fn cos(&self) -> Self::Output;
 
     #[must_use]
-    fn cosh(&self) -> f64;
+    fn acos(&self) -> Result<Self::Output, OutOfBounds>;
 
     #[must_use]
-    fn acosh(&self) -> Result<f64, OutOfBounds>;
+    fn cosh(&self) -> Self::Output;
+
+    #[must_use]
+    fn acosh(&self) -> Result<Self::Output, OutOfBounds>;
 }
 
 macro_rules! impl_cos {
     ($($name:ty),+) => {
         $(
-            impl Cos for $name {
-                fn cos(&self) -> f64 {
+            impl Cos<'_, '_> for $name {
+                type Output = f64;
+
+                fn cos(&self) -> Self::Output {
                     f64::cos((*self).into())
                 }
 
-                fn acos(&self) -> Result<f64, OutOfBounds> {
-                    let result = f64::acos((*self).into());
+                fn acos(&self) -> Result<Self::Output, OutOfBounds> {
+                    let result = Self::Output::acos((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
 
-                fn cosh(&self) -> f64 {
+                fn cosh(&self) -> Self::Output {
                     f64::cosh((*self).into())
                 }
 
-                fn acosh(&self) -> Result<f64, OutOfBounds> {
-                    let result = f64::acosh((*self).into());
+                fn acosh(&self) -> Result<Self::Output, OutOfBounds> {
+                    let result = Self::Output::acosh((*self).into());
                     return if result.is_nan() { Err(OutOfBounds) } else { Ok(result) }
                 }
             }
@@ -88,8 +107,14 @@ macro_rules! impl_cos {
 
 impl_cos!(f32, f64, u8, u16, u32, i8, i16, i32);
 
-pub trait Tan {
-    type Output: Copy + Sized + ScalarAdd + ScalarSub + ScalarMul + ScalarDiv + Identity;
+pub trait Tan<'a, 'b> {
+    type Output: Copy
+        + Sized
+        + ScalarAdd<'a, 'b>
+        + ScalarSub<'a, 'b>
+        + ScalarMul<'a, 'b>
+        + ScalarDiv<'a, 'b>
+        + Identity;
 
     #[must_use]
     fn tan(&self) -> Self::Output;
@@ -107,7 +132,7 @@ pub trait Tan {
 macro_rules! impl_tan {
     ($($name:ty),+) => {
         $(
-            impl Tan for $name {
+            impl Tan<'_, '_> for $name {
                 type Output = f64;
 
                 fn tan(&self) -> Self::Output {
@@ -134,7 +159,7 @@ macro_rules! impl_tan {
 
 impl_tan!(f32, f64, u8, u16, u32, i8, i16, i32);
 
-pub trait Csc: Sin + Inverse {
+pub trait Csc<'a, 'b>: Sin<'a, 'b> + Inverse {
     #[must_use]
     fn csc(&self) -> f64;
 
@@ -150,7 +175,7 @@ pub trait Csc: Sin + Inverse {
 
 macro_rules! impl_csc {
     ($($name:ty),+) => {
-        $(impl Csc for $name {
+        $(impl Csc<'_, '_> for $name {
             fn csc(&self) -> f64 {
                 self.sin().inverse()
             }
@@ -172,7 +197,7 @@ macro_rules! impl_csc {
 
 impl_csc!(f32, f64, u8, u16, u32, i8, i16, i32);
 
-pub trait Sec: Cos + Inverse {
+pub trait Sec<'a, 'b>: Cos<'a, 'b> + Inverse {
     #[must_use]
     fn sec(&self) -> f64;
 
@@ -188,7 +213,7 @@ pub trait Sec: Cos + Inverse {
 
 macro_rules! impl_sec {
     ($($name:ty),+) => {
-        $(impl Sec for $name {
+        $(impl Sec<'_, '_> for $name {
             fn sec(&self) -> f64 {
                 self.cos().inverse()
             }
@@ -210,7 +235,7 @@ macro_rules! impl_sec {
 
 impl_sec!(f32, f64, u8, u16, u32, i8, i16, i32);
 
-pub trait Cot: Tan + Inverse {
+pub trait Cot<'a, 'b>: Tan<'a, 'b> + Inverse {
     #[must_use]
     fn cot(&self) -> f64;
 
@@ -226,7 +251,7 @@ pub trait Cot: Tan + Inverse {
 
 macro_rules! impl_cot {
     ($($name:ty),+) => {
-        $(impl Cot for $name {
+        $(impl Cot<'_, '_> for $name {
             fn cot(&self) -> f64 {
                 self.tan().inverse()
             }
