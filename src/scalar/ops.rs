@@ -89,7 +89,7 @@ macro_rules! impl_scalar_operation {
                 let lhs = lhs.into();
                 let rhs = rhs.into();
 
-                if rhs.is_multiplicative_identity() {
+                if rhs.is_additive_identity() {
                     return Err(ZeroDivisorError);
                 } else {
                     return Ok(lhs / rhs);
@@ -100,7 +100,7 @@ macro_rules! impl_scalar_operation {
                 let lhs = lhs.into();
                 let rhs = rhs.into();
 
-                if rhs.is_multiplicative_identity() {
+                if rhs.is_additive_identity() {
                     return Err(ZeroDivisorError);
                 } else {
                     return Ok(lhs / rhs);
